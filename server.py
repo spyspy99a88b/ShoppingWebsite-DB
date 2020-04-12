@@ -161,7 +161,7 @@ def user():
   for result in cursor:
     orders.append([result['order_id'],result['product_id'],result['quantity'],result['price']])  # 
   cursor.close()
-  context = dict(data = order[0])
+  context = dict(data = orders)
   return render_template("user.html", **context)
 
 @app.route('/product')

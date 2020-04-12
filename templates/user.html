@@ -8,8 +8,14 @@
         <th>quantity</th>
         <th>price</th>
       </tr>
-	<tr> {{data}}
+	{% for n in data %}
+	<tr>
+		{% for i in n %}
+		<th> {{i}} </th>
+		{% endfor %}
 	</tr>
+	{% endfor %}
+
     </table>
   </body>
 
