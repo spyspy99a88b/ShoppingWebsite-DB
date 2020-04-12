@@ -2,9 +2,11 @@ import os
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from flask import Flask, request, render_template, g, redirect, Response
+from uuser import *
+from flask_login import current_user
 
-username=None
-password=None
+global username
+global password
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
@@ -34,6 +36,8 @@ def before_request():
     print("uh oh, problem connecting to database")
     import traceback; traceback.print_exc()
     g.conn = None
+
+    
 
 @app.teardown_request
 def teardown_request(exception):
@@ -125,6 +129,8 @@ def add():
 
 @app.route('/', methods=['GET','POST'])
 def login():
+  global password
+  global username
   if request.method == 'GET':
         return render_template('login.html')
   else:
@@ -147,19 +153,16 @@ def login():
 
 @app.route('/user')
 def user():
-  cursor = g.conn.execute("SELECT name FROM test")
-  names = []
+  global password
+  global username
+  username_m='\''+username+'\''
+  cursor = g.conn.execute("SELECT * FROM orders where customer_id="+username_m+';')
+  orders = []
   for result in cursor:
-    names.append(result['name'])  # can also be accessed using result[0]
+    orders.append([result['order_id'],result['product_id'],result['quantity'],result['price']])  # 
   cursor.close()
-  context = dict(data = names)
-
-
-  #
-  # render_template looks in the templates/ folder for files.
-  # for example, the below file reads template/index.html
-  #
-  return render_template(".html", **context)
+  context = dict(data = order[0])
+  return render_template("user.html", **context)
 
 @app.route('/product')
 def product():
