@@ -175,7 +175,17 @@ def order():
 
 @app.route('/seller')
 def seller():
-  return render_template("index.html", **context)
+  global password
+  global username
+  username_m='\''+username+'\''
+  cursor = g.conn.execute("SELECT * FROM seller_productslist where seller_id="+username_m+';')
+  seller_productslist = []
+  for result in cursor:
+    seller_productslist.append([result['seller_id'],result['product_id']])  # 
+  cursor.close()
+  context = dict(data = seller_productslist)
+  return render_template("seller.html", **context)
+  
 
 @app.route('/seller/add')
 def seller_add():
@@ -193,6 +203,7 @@ if __name__ == "__main__":
   @click.option('--threaded', is_flag=True)
   @click.argument('HOST', default='0.0.0.0')
   @click.argument('PORT', default=8113, type=int)
+  
   def run(debug, threaded, host, port):
     """
     This function handles command line parameters.
