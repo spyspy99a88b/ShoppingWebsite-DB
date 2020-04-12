@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <body>
+<h1> Your current orders. <\h1>
+    <table border=1 width=3000>
+      <tr>
+        <th>product id</th>
+        <th>product name</th>
+        <th>category</th>
+      </tr>
+        {% for n in data %}
+        <tr>
+                <th><th><a href="/product/{{n[0]}}">Go for more details</a></th>
+		{% for i in n %}
+                <th> {{i}} </th>
+                {% endfor %}
+        </tr>
+        {% endfor %}
+
+    </table>
+</body>
+

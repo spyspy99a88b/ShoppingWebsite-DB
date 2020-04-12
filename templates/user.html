@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <body>
+<h1> Your current orders. <\h1>
     <table border=1 width=3000>
       <tr>
         <th>Order id</th>
@@ -17,5 +18,9 @@
 	{% endfor %}
 
     </table>
+<form method='POST'> You could search for a product: <input type='text',name="product_name"> 
+<br><input type="submit" value="go search"></br>
+</form>
+	
   </body>
 
