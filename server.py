@@ -1,46 +1,15 @@
-
-"""
-Columbia's COMS W4111.001 Introduction to Databases
-Example Webserver
-To run locally:
-    python server.py
-Go to http://localhost:8111 in your browser.
-A debugger such as "pdb" may be helpful for debugging.
-Read about it online.
-"""
 import os
-  # accessible as a variable in index.html:
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from flask import Flask, request, render_template, g, redirect, Response
+import user_model
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
-
-
-#
-# The following is a dummy URI that does not connect to a valid database. You will need to modify it to connect to your Part 2 database in order to use the data.
-#
-# XXX: The URI should be in the format of: 
-#
-#     postgresql://USER:PASSWORD@35.243.220.243/proj1part2
-#
-# For example, if you had username gravano and password foobar, then the following line would be:
-#
-#     DATABASEURI = "postgresql://gravano:foobar@35.243.220.243/proj1part2"
-#
-DATABASEURI = "postgresql://ps3142:spyyzh@35.243.220.243/proj1part2"
-
-
-#
-# This line creates a database engine that knows how to connect to the URI above.
-#
+DATABASEURI = "postgresql://ps3142:spyyzh@35.231.103.173/proj1part2"
 engine = create_engine(DATABASEURI)
 
-#
-# Example of running queries in your database
-# Note that this will probably not work if you already have a table named 'test' in your database, containing meaningful data. This is only an example showing you how to run queries in your database using SQLAlchemy.
-#
+
 engine.execute("""CREATE TABLE IF NOT EXISTS test (
   id serial,
   name text
@@ -76,19 +45,11 @@ def teardown_request(exception):
     pass
 
 
-#
-# @app.route is a decorator around index() that means:
-#   run index() whenever the user tries to access the "/" path using a GET request
-#
+
 # If you wanted the user to go to, for example, localhost:8111/foobar/ with POST or GET then you could use:
-#
 #       @app.route("/foobar/", methods=["POST", "GET"])
-#
-# PROTIP: (the trailing / in the path is important)
-# 
 # see for routing: http://flask.pocoo.org/docs/0.10/quickstart/#routing
 # see for decorators: http://simeonfranklin.com/blog/2012/jul/1/python-decorators-in-12-steps/
-#
 @app.route('/')
 def index():
   """
@@ -108,11 +69,12 @@ def index():
   #
   # example of a database query
   #
-  cursor = g.conn.execute("SELECT name FROM test")
+  cursor = g.conn.execute("SELECT name FROM products")
   names = []
   for result in cursor:
     names.append(result['name'])  # can also be accessed using result[0]
   cursor.close()
+  context = dict(data = names)
 
   #
   # Flask uses Jinja templates, which is an extension to HTML where you can
@@ -140,6 +102,37 @@ def index():
   #     <div>{{n}}</div>
   #     {% endfor %}
   #
+  
+
+
+  #
+  # render_template looks in the templates/ folder for files.
+  # for example, the below file reads template/index.html
+  #
+  return render_template("index.html", **context)
+
+@app.route('/another')
+def another():
+  return render_template("another.html")
+
+@app.route('/add', methods=['POST'])
+def add():
+  name = request.form['name']
+  g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
+  return redirect('/')
+
+@app.route('/login')
+def login():
+    abort(401)
+    this_is_never_executed()
+
+@app.route('/user')
+def user():
+  cursor = g.conn.execute("SELECT name FROM test")
+  names = []
+  for result in cursor:
+    names.append(result['name'])  # can also be accessed using result[0]
+  cursor.close()
   context = dict(data = names)
 
 
@@ -149,32 +142,26 @@ def index():
   #
   return render_template("index.html", **context)
 
-#
-# This is an example of a different path.  You can see it at:
-# 
-#     localhost:8111/another
-#
-# Notice that the function name is another() rather than index()
-# The functions for each app.route need to have different names
-#
-@app.route('/another')
-def another():
-  return render_template("another.html")
+@app.route('/product')
+def product():
+  return render_template("index.html", **context)
+
+@app.route('/order')
+def order():
+  return render_template("index.html", **context)
 
 
-# Example of adding new data to the database
-@app.route('/add', methods=['POST'])
-def add():
-  name = request.form['name']
-  g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
-  return redirect('/')
+@app.route('/seller')
+def seller():
+  return render_template("index.html", **context)
 
+@app.route('/seller/add')
+def seller_add():
+  return render_template("index.html", **context)
 
-@app.route('/login')
-def login():
-    abort(401)
-    this_is_never_executed()
-
+@app.route('/advertisement')
+def advertisement():
+  return render_template("index.html", **context)
 
 if __name__ == "__main__":
   import click
@@ -183,7 +170,7 @@ if __name__ == "__main__":
   @click.option('--debug', is_flag=True)
   @click.option('--threaded', is_flag=True)
   @click.argument('HOST', default='0.0.0.0')
-  @click.argument('PORT', default=8111, type=int)
+  @click.argument('PORT', default=8112, type=int)
   def run(debug, threaded, host, port):
     """
     This function handles command line parameters.
