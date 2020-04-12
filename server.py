@@ -3,6 +3,9 @@ from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from flask import Flask, request, render_template, g, redirect, Response
 
+username=None
+password=None
+
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
 DATABASEURI = "postgresql://ps3142:spyyzh@35.231.103.173/proj1part2"
@@ -120,21 +123,27 @@ def add():
   g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
   return redirect('/')
 
-@app.route('/', methods=['GET'])
+@app.route('/', methods=['GET','POST'])
 def login():
-  g.username=request.form.get('username')
-  g.password=request.form.get('password')
-  cursor = g.conn.execute("SELECT Customer_ID,password FROM Customers;")
-  user_info = []
-  for result in cursor:
-    user_info.append([result[0],result[1]])
-  cursor.close()
-  if [g.username,g.password] in user_info:
-    g.user_type='customers'
-    print('success!')
-    return render_template("another.html")
-  return render_template("login.html")
-  
+  if request.method == 'GET':
+        return render_template('login.html')
+  else:
+    username=request.form.get('username')
+    password=request.form.get('password')
+    g.user=username
+    g.password=password
+    cursor = g.conn.execute("SELECT Customer_ID,password FROM Customers;")
+    user_info = list()
+    for result in cursor:
+      user_info.append([result[0],result[1]])
+    cursor.close()
+
+    if password == '123456' and 'c' in username: #有点问题
+      return redirect('/user')
+    elif password == '123456' and 's' in username:
+      return redirect('/seller')
+    else:
+      return username+password+user_info[0][0]+user_info[0][1]+'密码错误'
 
 @app.route('/user')
 def user():
@@ -150,7 +159,7 @@ def user():
   # render_template looks in the templates/ folder for files.
   # for example, the below file reads template/index.html
   #
-  return render_template("index.html", **context)
+  return render_template(".html", **context)
 
 @app.route('/product')
 def product():
