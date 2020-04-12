@@ -2,7 +2,6 @@ import os
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from flask import Flask, request, render_template, g, redirect, Response
-import user_model
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
@@ -50,7 +49,7 @@ def teardown_request(exception):
 #       @app.route("/foobar/", methods=["POST", "GET"])
 # see for routing: http://flask.pocoo.org/docs/0.10/quickstart/#routing
 # see for decorators: http://simeonfranklin.com/blog/2012/jul/1/python-decorators-in-12-steps/
-@app.route('/')
+@app.route('/index')
 def index():
   """
   request is a special object that Flask provides to access web request information:
@@ -121,10 +120,21 @@ def add():
   g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
   return redirect('/')
 
-@app.route('/login')
+@app.route('/', methods=['GET'])
 def login():
-    abort(401)
-    this_is_never_executed()
+  g.username=request.form.get('username')
+  g.password=request.form.get('password')
+  cursor = g.conn.execute("SELECT Customer_ID,password FROM Customers;")
+  user_info = []
+  for result in cursor:
+    user_info.append([result[0],result[1]])
+  cursor.close()
+  if [g.username,g.password] in user_info:
+    g.user_type='customers'
+    print('success!')
+    return render_template("another.html")
+  return render_template("login.html")
+  
 
 @app.route('/user')
 def user():
@@ -170,7 +180,7 @@ if __name__ == "__main__":
   @click.option('--debug', is_flag=True)
   @click.option('--threaded', is_flag=True)
   @click.argument('HOST', default='0.0.0.0')
-  @click.argument('PORT', default=8112, type=int)
+  @click.argument('PORT', default=8113, type=int)
   def run(debug, threaded, host, port):
     """
     This function handles command line parameters.
