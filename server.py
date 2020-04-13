@@ -181,7 +181,7 @@ def seller():
   cursor = g.conn.execute("SELECT * FROM seller_productslist where seller_id="+username_m+';')
   seller_productslist = []
   for result in cursor:
-    seller_productslist.append([result['seller_id'],result['product_id']])  # 
+    seller_productslist.append(result['product_id'])  #
   cursor.close()
   context = dict(data = seller_productslist)
   return render_template("seller.html", **context)
