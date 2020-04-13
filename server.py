@@ -133,12 +133,17 @@ def user():
   global username
   if request.method == 'POST':
     s_i=request.form.get('search')
-    cursor3 = g.conn.execute("""SELECT product_id,name,categories,price FROM product where name like '%{s}%' """.format(s=s_i))
+    s_i=str(s_i)
+    line="SELECT product_id,name,categories,price FROM products where name like '{s}';".format(s=s_i)
+    cursor3 = g.conn.execute(line)
     pp = []
-    for result in cursor3:
-      pp.append([result[0],result[1],result[2],result[5]]) #id name category price
-    context = dict(data=pp) 
-    cursor.close()
+    try:
+      for result in cursor3:
+        pp.append([result['product_id'],result['name'],result['categories'],result['price']]) #id name category price
+    except:
+      pp=['no result','no result','no result','no result']
+    cursor3.close()  
+    context=dict(data=pp) 
     return render_template("search.html", **context)
 
   username_m='\''+username+'\''
