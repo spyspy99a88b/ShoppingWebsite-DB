@@ -1,4 +1,4 @@
-# DB Project - Shopping Website - Group 31
+# DB Project - Shopping Website - Group 41
 
 # PostgreSQL Information
 account:ps3142
