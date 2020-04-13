@@ -106,7 +106,7 @@ def login():
       user_info.append([result[0],result[1]])
     cursor.close()
 
-    if [username,password] == user_info[0] or ('c' in username and password == '123456'):
+    if [username,password] == user_info or ('c' in username and password == '123456'):
       return redirect('/user')
     elif [username,password] in user_info or ('s' in username and password == '123456'):
       return redirect('/seller')
