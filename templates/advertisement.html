@@ -7,12 +7,18 @@
         <th>advertisement id</th>
         <th>product id</th>
         <th>price</th>
+        <th>action</th>
       </tr>
 	{% for n in data %}
 	<tr>
 		{% for i in n %}
 		<th> {{i}} </th>
-		{% endfor %}
+        {% endfor %}
+        <th>
+        <a href="/seller/add">
+        <button>Buy</button>
+        </a>
+        </th>
 	</tr>
 	{% endfor %}
 

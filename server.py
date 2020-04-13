@@ -211,6 +211,9 @@ def advertisement():
     seller_ad.append([result['advertisement_id'], result['product_id'], result['price']])  #
   cursor.close()
   context = dict(data=seller_ad)
+  #需要在点击Buy后更新数据库
+  #g.conn.execute("""INSERT INTO Advertisement(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');""")
+
   return render_template("advertisement.html", **context)
 
 if __name__ == "__main__":
