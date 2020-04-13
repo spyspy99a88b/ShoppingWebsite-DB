@@ -1,32 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
-  <body>
-<h1> Your products detail. </h1>
-    <table border=1 width=1500>
-      <tr>
-        <th>product id</th>
-        <th>product name</th>
-        <th>categories</th>
-        <th>keys</th>
-        <th>pictures</th>
-        <th>price</th>
-        <th>is_selling</th>
-        <th>action</th>
-      </tr>
-	{% for n in data %}
-	<tr>
-		{% for i in n %}
-		<th> {{i}} </th>
-		{% endfor %}
-        <th>
-        <a href="/user">
-        <button>Buy again</button>
-        </a>
-        </th>
-	</tr>
-	{% endfor %}
+ <html lang="en">
+<body>
+    {% for i in data %}
+    <p> {{i}} </p>
+    {% endfor %}
 
-    </table>
-
-  </body>
-
+ </body>

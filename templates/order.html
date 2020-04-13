@@ -1,1 +1,44 @@
-hello, I am another file!
+<!DOCTYPE html>
+<html lang="en">
+  <body>
+<h1> Your products detail. </h1>
+    <table border=1 width=1500>
+      <tr>
+        <th>product id</th>
+        <th>product name</th>
+        <th>categories</th>
+        <th>keys</th>
+        <th>pictures</th>
+        <th>price</th>
+        <th>is_selling</th>
+        <th>star ratings</th>
+        <th>text</th>
+        <th>reviewed or not</th>
+        <th>action</th>
+      </tr>
+	{% for n in data %}
+	<tr>
+		{% for i in n %}
+		<th> {{i}} </th>
+        {% if loop.last %}
+          {% if i==0 %}
+            <th>
+            <a href="/review">
+            <button>Write review</button>
+            </a>
+            </th>
+          {% else %}
+            <th>
+            <li>Thank you for your review!</li>
+            </th>
+          {% endif %}
+        {% endif %}
+
+        {% endfor %}
+	</tr>
+	{% endfor %}
+
+    </table>
+
+  </body>
+

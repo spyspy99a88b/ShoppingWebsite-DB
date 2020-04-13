@@ -166,26 +166,27 @@ def user():
 
 @app.route('/product')
 def product():
-  return render_template("index.html", **context)
-
-#这里product details目前是每个顾客买的产品的details，不是单一各个产品的detail
-@app.route('/product/detail')
-def product_detail():
-  global password
-  global username
-  username_m = '\'' + username + '\''
-  cursor = g.conn.execute("SELECT p.product_id, p.name, p.categories, p.keys, p.picture, p.price, p.is_selling FROM Products p JOIN orders o on o.product_id=p.product_id where o.customer_id="+username_m+';')
-  product_dt = []
-  for result in cursor:
-    product_dt.append([result[0],result[1],result[2],result[3],result[4],result[5],result[6]])  #
-  cursor.close()
-  context = dict(data=product_dt)
-  return render_template("product_detail.html", **context)
+  return render_template("product.html", **context)
 
 
 @app.route('/order')
 def order():
-  return render_template("index.html", **context)
+  global password
+  global username
+  username_m = '\'' + username + '\''
+  cursor = g.conn.execute(
+    "SELECT p.product_id, p.name, p.categories, p.keys, p.picture, p.price, p.is_selling, r.star_ratings, r.text, r.reviewed_or_not FROM Products p JOIN orders o on o.product_id=p.product_id JOIN reviews r on r.order_id = o.order_id where o.customer_id=" + username_m + ';')
+  order = []
+  for result in cursor:
+    order.append([result[0], result[1], result[2], result[3], result[4], result[5], result[6], result[7], result[8], result[9]])
+  cursor.close()
+  context = dict(data=order)
+  return render_template("order.html", **context)
+
+
+@app.route('/review')
+def review():
+  return render_template("review.html")
 
 
 @app.route('/seller')
