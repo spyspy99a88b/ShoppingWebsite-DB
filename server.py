@@ -202,7 +202,16 @@ def seller_add():
 
 @app.route('/advertisement')
 def advertisement():
-  return render_template("index.html", **context)
+  global password
+  global username
+  username_m = '\'' + username + '\''
+  cursor = g.conn.execute("SELECT * FROM Advertisement;")
+  seller_ad = []
+  for result in cursor:
+    seller_ad.append([result['advertisement_id'], result['product_id'], result['price']])  #
+  cursor.close()
+  context = dict(data=seller_ad)
+  return render_template("advertisement.html", **context)
 
 if __name__ == "__main__":
   import click

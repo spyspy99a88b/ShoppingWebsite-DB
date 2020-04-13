@@ -2,7 +2,7 @@
 <html lang="en">
   <body>
 <h1> Your current products. </h1>
-    <table border=1 width=3000>
+    <table border=1 width=30>
       <tr>
         <th>product_id</th>
       </tr>
@@ -11,12 +11,12 @@
         <th> {{n}} </th>
 	</tr>
 	{% endfor %}
-
-
     </table>
-<form method='POST'> You could search for a product: <input type='text',name="product_name">
-<br><input type="submit" value="go search"></br>
-</form>
+
+<br>
+<a href="/seller/add">
+    <button>Visit your advertisements</button>
+</a>
 
   </body>
 
