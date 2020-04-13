@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <body>
+<h1> Your searching result. <\h1>
+    <table border=1 width=300>
+      <tr>
+        <th>product id</th>
+        <th>product name</th>
+        <th>category</th>
+        <th>price</th>
+      </tr>
+        {% for n in data %}
+        <tr>      
+		      {% for i in n %}
+              <th> {{i}} </th>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+
+  
+  <a href="/user">
+      <button>Back to previous page </button>
+  </a>  
+
+</body>
+

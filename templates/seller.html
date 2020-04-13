@@ -12,11 +12,26 @@
 	</tr>
 	{% endfor %}
     </table>
+  
+<h1> Your current advertisements. </h1>
+<table border=1 width=1200>
+      <tr>
+        <th>advertisement id</th>
+        <th>product id</th>
+        <th>price</th>
+      </tr>
+	{% for n in data2 %}
+	<tr>
+		{% for i in n %}
+		<th> {{i}} </th>
+		{% endfor %}
+	</tr>
+	{% endfor %}
+    </table>
 
-<br>
-<a href="/seller/add">
-    <button>Visit your advertisements</button>
+<h1> Your could buy some advertisements.</h1>
+<a href="/advertisement">
+    <button>List of advertisements</button>
 </a>
-
   </body>
 

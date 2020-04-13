@@ -2,7 +2,7 @@
 <html lang="en">
   <body>
 <h1> Your current orders. </h1>
-    <table border=1 width=1500>
+    <table border=1 width=500>
       <tr>
         <th>Order id</th>
         <th>product_id</th>
@@ -16,35 +16,40 @@
 		{% endfor %}
 	</tr>
 	{% endfor %}
+     </table>
 
-    </table>
-<form method='POST'> You could search for a product: <input type='text',name="product_name">
-<br><input type="submit" value="go search"></br>
-</form>
-
-<br>
 <a href="/order">
     <button>Review your orders</button>
 </a>
 
+<h2> Searching Engine </h2>
+<form method='POST'> 
+  You could search for a product: 
+  <input type='text' name="search">
+<p><input type="submit" value="go search"></p>
+</form>
 
-<br>
 <h1> Best Sellers </h1>
     <table border=1 width=800>
       <tr>
-        <th>Order id</th>
-        <th>product_id</th>
-        <th>quantity</th>
-        <th>price</th>
+        <th>Seller id </th>
+        <th>Seller name</th>
+        <th>Industry</th>
+        <th>Likes in a year</th>
       </tr>
 	{% for n in data2 %}
 	<tr>
-		{% for i in n %}
+    {% for i in n %}
 		<th> {{i}} </th>
 		{% endfor %}
 	</tr>
 	{% endfor %}
-
     </table>
+
+  <a href="/logout">
+      <button>Logout
+      </button>
+  </a>
+
   </body>
 

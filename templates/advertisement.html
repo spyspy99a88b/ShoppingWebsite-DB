@@ -7,18 +7,17 @@
         <th>advertisement id</th>
         <th>product id</th>
         <th>price</th>
-        <th>action</th>
       </tr>
 	{% for n in data %}
 	<tr>
 		{% for i in n %}
 		<th> {{i}} </th>
         {% endfor %}
-        <th>
-        <a href="/seller/add">
-        <button>Buy</button>
-        </a>
-        </th>
+        
+       <form  method="POST">
+        <td><input type="submit" value="Buy {{n[1]}}" name="pid"></td>
+       </form>
+      
 	</tr>
 	{% endfor %}
 

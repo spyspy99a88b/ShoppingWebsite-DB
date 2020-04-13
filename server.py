@@ -8,6 +8,8 @@ from flask_login import current_user
 global username
 global password
 
+username='c0001' #调试用
+
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
 DATABASEURI = "postgresql://ps3142:spyyzh@35.231.103.173/proj1part2"
@@ -37,8 +39,6 @@ def before_request():
     import traceback; traceback.print_exc()
     g.conn = None
 
-    
-
 @app.teardown_request
 def teardown_request(exception):
   """
@@ -51,83 +51,45 @@ def teardown_request(exception):
     pass
 
 
-
-# If you wanted the user to go to, for example, localhost:8111/foobar/ with POST or GET then you could use:
-#       @app.route("/foobar/", methods=["POST", "GET"])
-# see for routing: http://flask.pocoo.org/docs/0.10/quickstart/#routing
-# see for decorators: http://simeonfranklin.com/blog/2012/jul/1/python-decorators-in-12-steps/
-@app.route('/index')
-def index():
-  """
-  request is a special object that Flask provides to access web request information:
-
-  request.method:   "GET" or "POST"
-  request.form:     if the browser submitted a form, this contains the data in the form
-  request.args:     dictionary of URL arguments, e.g., {a:1, b:2} for http://localhost?a=1&b=2
-
-  See its API: http://flask.pocoo.org/docs/0.10/api/#incoming-request-data
-  """
-
-  # DEBUG: this is debugging code to see what request looks like
-  print(request.args)
-
-
-  #
-  # example of a database query
-  #
-  cursor = g.conn.execute("SELECT name FROM products")
-  names = []
-  for result in cursor:
-    names.append(result['name'])  # can also be accessed using result[0]
-  cursor.close()
-  context = dict(data = names)
-
-  #
-  # Flask uses Jinja templates, which is an extension to HTML where you can
-  # pass data to a template and dynamically generate HTML based on the data
-  # (you can think of it as simple PHP)
-  # documentation: https://realpython.com/blog/python/primer-on-jinja-templating/
-  #
-  # You can see an example template in templates/index.html
-  #
-  # context are the variables that are passed to the template.
-  # for example, "data" key in the context variable defined below will be 
-  # accessible as a variable in index.html:
-  #
-  #     # will print: [u'grace hopper', u'alan turing', u'ada lovelace']
-  #     <div>{{data}}</div>
-  #     
-  #     # creates a <div> tag for each element in data
-  #     # will print: 
-  #     #
-  #     #   <div>grace hopper</div>
-  #     #   <div>alan turing</div>
-  #     #   <div>ada lovelace</div>
-  #     #
-  #     {% for n in data %}
-  #     <div>{{n}}</div>
-  #     {% endfor %}
-  #
-  
-
-
-  #
-  # render_template looks in the templates/ folder for files.
-  # for example, the below file reads template/index.html
-  #
-  return render_template("index.html", **context)
-
-@app.route('/another')
-def another():
-  return render_template("another.html")
-
-@app.route('/add', methods=['POST'])
-def add():
-  name = request.form['name']
-  g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
-  return redirect('/')
-
 @app.route('/', methods=['GET','POST'])
+def homepage():
+  cursor2 = g.conn.execute("""WITH seller_likes_count AS 
+  (SELECT s.seller_id, s.name, s.industry, sp.product_id, likes_num.count 
+  from sellers s LEFT OUTER JOIN seller_productslist sp ON s.seller_id = sp.seller_id 
+  LEFT OUTER JOIN (SELECT product_id, COUNT(product_id) FROM likes_or_not WHERE product_id in 
+  (SELECT product_id FROM Likes_or_not WHERE NOW()-timestamp::timestamp < '1 year'::interval) 
+  GROUP BY product_id) likes_num ON sp.product_id = likes_num.product_id 
+  GROUP BY s.seller_id, sp.product_id, likes_num.count ORDER BY s.name) 
+  SELECT seller_id, name,industry, sum(count) 
+  FROM seller_likes_count 
+  GROUP BY seller_id,name,industry 
+  Having sum(count)>0
+  ORDER BY sum(count) DESC;""")
+  ranks = []
+  for result in cursor2:
+    ranks.append([result['seller_id'],result['name'],result['industry'],result['sum']])  #
+  cursor2.close()
+
+  cursor1 = g.conn.execute("""SELECT o.product_id,p.name,avg(r.star_ratings)
+  FROM Orders o LEFT JOIN Reviews r on o.order_id=r.order_id
+  RIGHT JOIN products p ON p.product_id=o.product_id
+  WHERE p.product_id in (SELECT product_id
+  FROM Likes_or_not
+  WHERE NOW()-timestamp::timestamp < '6 months'::interval)
+  GROUP BY o. product_id,p.name
+  HAVING AVG(r.star_ratings)>=4.5;""")
+  good_product = []
+  try:
+    for result in cursor1:
+      good_product.append([result[0],result[1],result[2]])
+  except:
+      good_product.append(['no good products','no good products','no good products'])
+  cursor1.close()
+  context = dict(data2 = ranks,data1=good_product)
+
+  return render_template("homepage.html", **context)
+
+@app.route('/login', methods=['GET','POST'])
 def login():
   global password
   global username
@@ -144,17 +106,41 @@ def login():
       user_info.append([result[0],result[1]])
     cursor.close()
 
-    if password == '123456' and 'c' in username: #有点问题
+    if [username,password] == user_info[0] or ('c' in username and password == '123456'):
       return redirect('/user')
-    elif password == '123456' and 's' in username:
+    elif [username,password] in user_info or ('s' in username and password == '123456'):
       return redirect('/seller')
     else:
-      return username+password+user_info[0][0]+user_info[0][1]+'Password error'
+      return redirect('/login/error')
 
-@app.route('/user')
+@app.route('/login/error', methods=['GET','POST'])
+def login_error():
+  return render_template("login_error.html")
+
+@app.route('/logout', methods=['GET','POST'])
+def logout():
+  global password
+  global username
+  username = None
+  password = None
+  return render_template("logout.html")
+  
+
+
+@app.route('/user',methods=['GET','POST'])
 def user():
   global password
   global username
+  if request.method == 'POST':
+    s_i=request.form.get('search')
+    cursor3 = g.conn.execute("""SELECT product_id,name,categories,price FROM product where name like '%{s}%' """.format(s=s_i))
+    pp = []
+    for result in cursor3:
+      pp.append([result[0],result[1],result[2],result[5]]) #id name category price
+    context = dict(data=pp) 
+    cursor.close()
+    return render_template("search.html", **context)
+
   username_m='\''+username+'\''
   cursor = g.conn.execute("SELECT * FROM orders where customer_id="+username_m+';')
   orders = []
@@ -172,7 +158,8 @@ def user():
   SELECT seller_id, name,industry, sum(count) 
   FROM seller_likes_count 
   GROUP BY seller_id,name,industry 
-  ORDER BY industry, sum(count) DESC;""")
+  Having sum(count)>0
+  ORDER BY sum(count) DESC;""")
   ranks = []
   for result in cursor2:
     ranks.append([result['seller_id'],result['name'],result['industry'],result['sum']])  #
@@ -217,27 +204,47 @@ def seller():
   for result in cursor:
     seller_productslist.append(result['product_id'])  #
   cursor.close()
-  context = dict(data = seller_productslist)
+
+  cursor2 = g.conn.execute("SELECT * FROM Advertisement where seller_id=" + username_m + ';')
+  seller_ad = []
+  for result in cursor2:
+    seller_ad.append([result['advertisement_id'],result['product_id'],result['price']])  #
+  cursor2.close()
+  context = dict(data = seller_productslist,data2=seller_ad)
   return render_template("seller.html", **context)
   
 
-@app.route('/seller/add')
-def seller_add():
-  global password
-  global username
-  username_m = '\'' + username + '\''
-  cursor = g.conn.execute("SELECT * FROM Advertisement where seller_id=" + username_m + ';')
-  seller_ad = []
-  for result in cursor:
-    seller_ad.append([result['advertisement_id'],result['product_id'],result['price']])  #
-  cursor.close()
-  context = dict(data=seller_ad)
-  return render_template("seller_add.html", **context)
+# @app.route('/seller/add') #舍弃
+# def seller_add():
+#   global password
+#   global username
+#   username_m = '\'' + username + '\''
+#   cursor = g.conn.execute("SELECT * FROM Advertisement where seller_id=" + username_m + ';')
+#   seller_ad = []
+#   for result in cursor:
+#     seller_ad.append([result['advertisement_id'],result['product_id'],result['price']])  #
+#   cursor.close()
+#   context = dict(data=seller_ad)
+#   return render_template("seller_add.html", **context)
 
-@app.route('/advertisement')
+@app.route('/advertisement',methods=['GET','POST'])
 def advertisement():
   global password
   global username
+
+  if request.method=='POST':
+    sid=username
+    pid=request.form.get('pid')
+    pid=pid[4:]
+    cursor1= g.conn.execute("select count(advertisement_id) from advertisement;")
+    aid=1
+    for result in cursor1:
+      aid=aid+int(result[0])
+    cursor1.close()
+    aid='a00'+str(aid)
+    g.conn.execute("""INSERT INTO Advertisement VALUES ('{aid}','{sellerid}', '{productid}','200');""".format(aid=aid,sellerid=sid,productid=pid))
+    return redirect('/seller')
+  
   username_m = '\'' + username + '\''
   cursor = g.conn.execute("SELECT * FROM Advertisement;")
   seller_ad = []
@@ -245,8 +252,6 @@ def advertisement():
     seller_ad.append([result['advertisement_id'], result['product_id'], result['price']])  #
   cursor.close()
   context = dict(data=seller_ad)
-  #需要在点击Buy后更新数据库
-  #g.conn.execute("""INSERT INTO Advertisement(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');""")
 
   return render_template("advertisement.html", **context)
 
@@ -257,7 +262,7 @@ if __name__ == "__main__":
   @click.option('--debug', is_flag=True)
   @click.option('--threaded', is_flag=True)
   @click.argument('HOST', default='0.0.0.0')
-  @click.argument('PORT', default=8113, type=int)
+  @click.argument('PORT', default=8114, type=int)
   
   def run(debug, threaded, host, port):
     """

@@ -1,0 +1,38 @@
+
+<h1>Welcome the online shopping website. Please login for more information.</h1>
+<a href="/login">
+    <button>login</button>
+</a>
+
+<h2> Good Seller in our website </h2>
+    <table border=1 width=800>
+      <tr>
+        <th>Seller id </th>
+        <th>Seller name</th>
+        <th>Industry</th>
+        <th>Likes in a year</th>
+      </tr>
+	{% for n in data2 %}
+	<tr>
+    {% for i in n %}
+		<th> {{i}} </th>
+		{% endfor %}
+	</tr>
+	{% endfor %}
+    </table>
+
+<h2> Good products in our website </h2>
+<table border=1 width=800>
+    <tr>
+      <th>product id </th>
+      <th>product name</th>
+      <th>average stars</th>
+    </tr>
+  {% for n in data1 %}
+  <tr>
+  {% for i in n %}
+      <th> {{i}} </th>
+      {% endfor %}
+  </tr>
+  {% endfor %}
+  </table>
