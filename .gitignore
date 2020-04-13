@@ -27,3 +27,4 @@ ExportedObj/
 *.svd
 *.pdb
 .DS_Store
+.__pycache__
