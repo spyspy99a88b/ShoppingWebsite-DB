@@ -204,10 +204,12 @@ def seller():
   global password
   global username
   username_m='\''+username+'\''
-  cursor = g.conn.execute("SELECT * FROM seller_productslist where seller_id="+username_m+';')
+  cursor = g.conn.execute("""SELECT sp.product_id, p.name, p.categories, p.keys, p.price, p.is_selling 
+  FROM seller_productslist sp Join products p on sp.product_id=p.product_id 
+  where sp.seller_id="""+username_m+';')
   seller_productslist = []
   for result in cursor:
-    seller_productslist.append(result['product_id'])  #
+    seller_productslist.append([result['product_id'],result['name'],result['categories'],result['keys'],result['price'],result['is_selling']])  #
   cursor.close()
 
   cursor2 = g.conn.execute("SELECT * FROM Advertisement where seller_id=" + username_m + ';')

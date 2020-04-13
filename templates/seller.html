@@ -5,10 +5,17 @@
     <table border=1 width=30>
       <tr>
         <th>product_id</th>
+        <th>name</th>
+        <th>categories</th>
+        <th>keys</th>
+        <th>price</th>
+        <th>is_selling</th>
       </tr>
     {% for n in data %}
 	<tr>
-        <th> {{n}} </th>
+        {% for i in n %}
+		<th> {{i}} </th>
+		{% endfor %}
 	</tr>
 	{% endfor %}
     </table>
