@@ -149,7 +149,7 @@ def login():
     elif password == '123456' and 's' in username:
       return redirect('/seller')
     else:
-      return username+password+user_info[0][0]+user_info[0][1]+'密码错误'
+      return username+password+user_info[0][0]+user_info[0][1]+'Password error'
 
 @app.route('/user')
 def user():
