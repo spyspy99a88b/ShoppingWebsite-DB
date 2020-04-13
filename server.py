@@ -161,7 +161,23 @@ def user():
   for result in cursor:
     orders.append([result['order_id'],result['product_id'],result['quantity'],result['price']])  # 
   cursor.close()
-  context = dict(data = orders)
+
+  cursor2 = g.conn.execute("""WITH seller_likes_count AS 
+  (SELECT s.seller_id, s.name, s.industry, sp.product_id, likes_num.count 
+  from sellers s LEFT OUTER JOIN seller_productslist sp ON s.seller_id = sp.seller_id 
+  LEFT OUTER JOIN (SELECT product_id, COUNT(product_id) FROM likes_or_not WHERE product_id in 
+  (SELECT product_id FROM Likes_or_not WHERE NOW()-timestamp::timestamp < '1 year'::interval) 
+  GROUP BY product_id) likes_num ON sp.product_id = likes_num.product_id 
+  GROUP BY s.seller_id, sp.product_id, likes_num.count ORDER BY s.name) 
+  SELECT seller_id, name,industry, sum(count) 
+  FROM seller_likes_count 
+  GROUP BY seller_id,name,industry 
+  ORDER BY industry, sum(count) DESC;""")
+  ranks = []
+  for result in cursor2:
+    ranks.append([result['seller_id'],result['name'],result['industry'],result['sum']])  #
+  cursor2.close()
+  context = dict(data1 = orders, data2 = ranks)
   return render_template("user.html", **context)
 
 @app.route('/product')
@@ -175,7 +191,9 @@ def order():
   global username
   username_m = '\'' + username + '\''
   cursor = g.conn.execute(
-    "SELECT p.product_id, p.name, p.categories, p.keys, p.picture, p.price, p.is_selling, r.star_ratings, r.text, r.reviewed_or_not FROM Products p JOIN orders o on o.product_id=p.product_id JOIN reviews r on r.order_id = o.order_id where o.customer_id=" + username_m + ';')
+    """SELECT p.product_id, p.name, p.categories, p.keys, p.picture, p.price, p.is_selling, r.star_ratings, r.text, r.reviewed_or_not 
+    FROM Products p JOIN orders o on o.product_id=p.product_id JOIN reviews r on r.order_id = o.order_id 
+    where o.customer_id=""" + username_m + ';')
   order = []
   for result in cursor:
     order.append([result[0], result[1], result[2], result[3], result[4], result[5], result[6], result[7], result[8], result[9]])

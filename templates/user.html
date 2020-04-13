@@ -9,7 +9,7 @@
         <th>quantity</th>
         <th>price</th>
       </tr>
-	{% for n in data %}
+	{% for n in data1 %}
 	<tr>
 		{% for i in n %}
 		<th> {{i}} </th>
@@ -18,7 +18,7 @@
 	{% endfor %}
 
     </table>
-<form method='POST'> You could search for a product: <input type='text',name="product_name"> 
+<form method='POST'> You could search for a product: <input type='text',name="product_name">
 <br><input type="submit" value="go search"></br>
 </form>
 
@@ -26,5 +26,25 @@
 <a href="/order">
     <button>Review your orders</button>
 </a>
+
+
+<br>
+<h1> Best Sellers </h1>
+    <table border=1 width=800>
+      <tr>
+        <th>Order id</th>
+        <th>product_id</th>
+        <th>quantity</th>
+        <th>price</th>
+      </tr>
+	{% for n in data2 %}
+	<tr>
+		{% for i in n %}
+		<th> {{i}} </th>
+		{% endfor %}
+	</tr>
+	{% endfor %}
+
+    </table>
   </body>
 
