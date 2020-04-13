@@ -1,1 +1,22 @@
-hello, I am another file!
+<!DOCTYPE html>
+<html lang="en">
+  <body>
+<h1> Your current products. </h1>
+    <table border=1 width=3000>
+      <tr>
+        <th>product_id</th>
+      </tr>
+    {% for n in data %}
+	<tr>
+        <th> {{n}} </th>
+	</tr>
+	{% endfor %}
+
+
+    </table>
+<form method='POST'> You could search for a product: <input type='text',name="product_name">
+<br><input type="submit" value="go search"></br>
+</form>
+
+  </body>
+
