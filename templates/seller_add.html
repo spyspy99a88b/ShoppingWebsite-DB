@@ -1,1 +1,27 @@
-hello, I am another file!
+<!DOCTYPE html>
+<html lang="en">
+  <body>
+<h1> Your current advertisements. </h1>
+    <table border=1 width=1200>
+      <tr>
+        <th>advertisement id</th>
+        <th>product id</th>
+        <th>price</th>
+      </tr>
+	{% for n in data %}
+	<tr>
+		{% for i in n %}
+		<th> {{i}} </th>
+		{% endfor %}
+	</tr>
+	{% endfor %}
+
+    </table>
+
+
+<a href="/advertisement">
+    <button>Visit advertisements website</button>
+</a>
+
+  </body>
+
